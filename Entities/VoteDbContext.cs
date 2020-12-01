@@ -48,6 +48,10 @@ namespace Voting.Entities
                 e.Property(p => p.PreviousBidenVotes).IsRequired();
                 e.Property(p => p.PreviousThirdPartyVotes).IsRequired();
 
+                e.Property(p => p.TrumpPercentOfVoteDump).IsRequired().HasColumnType("decimal(6,3)");
+                e.Property(p => p.BidenPercentOfVoteDump).IsRequired().HasColumnType("decimal(6,3)");
+                e.Property(p => p.ThirdPartyPercentOfVoteDump).IsRequired().HasColumnType("decimal(6,3)");
+
                 e.Property(p => p.TotalVoteChange).HasComputedColumnSql("[TotalVotes]-[PreviousTotalVotes]");
                 e.Property(p => p.TrumpVoteChange).HasComputedColumnSql("[TrumpVotes]-[PreviousTrumpVotes]");
                 e.Property(p => p.BidenVoteChange).HasComputedColumnSql("[BidenVotes]-[PreviousBidenVotes]");

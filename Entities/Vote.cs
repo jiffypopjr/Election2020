@@ -31,6 +31,9 @@ namespace Voting.Entities
         public int PreviousBidenVotes { get; set; }
         public int PreviousThirdPartyVotes { get; set; }
 
+        public decimal TrumpPercentOfVoteDump { get; set; }
+        public decimal BidenPercentOfVoteDump { get; set; }
+        public decimal ThirdPartyPercentOfVoteDump { get; set; }
 
         // calced
         public int TotalVoteChange { get; set; }
@@ -63,11 +66,12 @@ namespace Voting.Entities
 
                 PreviousTrumpVotes = ts.Previous?.TrumpVotes ?? 0,
                 PreviousBidenVotes = ts.Previous?.BidenVotes ?? 0,
-                PreviousThirdPartyVotes = ts.Previous?.ThirdPartyVotes ?? 0
+                PreviousThirdPartyVotes = ts.Previous?.ThirdPartyVotes ?? 0,
+
+                TrumpPercentOfVoteDump = ts.TrumpPercentOfVoteDump,
+                BidenPercentOfVoteDump = ts.BidenPercentOfVoteDump,
+                ThirdPartyPercentOfVoteDump = ts.ThirdPartyPercentOfVoteDump
             };
         }
-
-
-        // calc columns?
     }
 }

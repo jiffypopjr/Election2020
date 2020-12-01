@@ -19,8 +19,9 @@ namespace Voting.Nyt
             "North-carolina","North-dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode-island","South-carolina","South-dakota","Tennessee","Texas","Utah",
             "Vermont","Virginia","Washington","West-virginia","Wisconsin","Wyoming" };
         public static string[] Swingers = new[] { "Pennsylvania", "Michigan", "Wisconson", "Arizona", "Nevada", "Georgia" };
-        public static async Task LoadData(bool resetDb = false, bool reloadFiles = false)
+        public static async Task<Dictionary<string, VoteTimeSeries[]>> LoadDataAsync(bool resetDb = false, bool reloadFiles = false)
         {
+            var result = new Dictionary<string, VoteTimeSeries[]>();
             DownloadFiles(reloadFiles);
 
             using (var dbContext = new VoteDbContext())
@@ -39,28 +40,32 @@ namespace Voting.Nyt
                     if (!await dbContext.States.AnyAsync(s => s.StateName == state))
                         dbContext.States.Add(State.Create(state, Swingers.Contains(state), DateTime.UtcNow));
 
+                    Console.WriteLine($"  Loading {state}...");
+                    var votes = JObject.Parse(await File.ReadAllTextAsync(filePath));
+                    var timeseries = votes?["data"]?["races"]?.FirstOrDefault()?["timeseries"];
+                    if (timeseries == null)
+                    {
+                        Console.WriteLine($"WARNING: {state} voting data is null!");
+                        continue;
+                    }
+                    var typedSeries = timeseries.Select(s => (VoteTimeSeries)s.ToObject(typeof(VoteTimeSeries))).OrderBy(s => s.Timestamp).ToArray();
+                    Console.WriteLine($"    There are {typedSeries.Length} items for {state}");
+                    typedSeries = typedSeries.Select((ts, i) => i > 0 ? ts.SetPrevious(typedSeries[i - 1]) : ts).ToArray();
+                    result.Add(state, typedSeries);
                     if (!await dbContext.Votes.AnyAsync(s => s.StateName == state))
                     {
-                        Console.WriteLine($"  Loading {state}...");
-                        var votes = JObject.Parse(await File.ReadAllTextAsync(filePath));
-                        var timeseries = votes?["data"]?["races"]?.FirstOrDefault()?["timeseries"];
-                        if (timeseries == null)
-                        {
-                            Console.WriteLine($"WARNING: {state} voting data is null!");
-                            continue;
-                        }
-                        var typedSeries = timeseries.Select(s => (VoteTimeSeries)s.ToObject(typeof(VoteTimeSeries))).OrderBy(s => s.Timestamp).ToArray();
-                        Console.WriteLine($"    There are {typedSeries.Length} items for {state}");
-                        typedSeries = typedSeries.Select((ts, i) => i > 0 ? ts.SetPrevious(typedSeries[i - 1]) : ts).ToArray();
                         foreach (var ts in typedSeries)
                         {
                             dbContext.Votes.Add(Vote.Create(state, ts));
                         }
-
                     }
-                    await dbContext.SaveChangesAsync();
+
+                    if (resetDb)
+                        await dbContext.SaveChangesAsync();
                 }
             }
+
+            return result;
         }
 
         private static void DownloadFiles(bool resetFiles = false)

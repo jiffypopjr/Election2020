@@ -29,6 +29,10 @@ namespace Voting.Nyt
         public decimal BidenPercentChange => VoteShares.BidenPercent - (Previous?.VoteShares?.BidenPercent ?? 0);
         public decimal ThirdPartyPercentChange => VoteShares.ThirdPartyPercent - (Previous?.VoteShares?.ThirdPartyPercent ?? 0);
 
+        public decimal TrumpPercentOfVoteDump => TotalVoteChange != 0 ? Math.Round((decimal)TrumpVoteChange / TotalVoteChange, 3) : 0;
+        public decimal BidenPercentOfVoteDump => TotalVoteChange != 0 ? Math.Round((decimal)BidenVoteChange / TotalVoteChange, 3) : 0;
+        public decimal ThirdPartyPercentOfVoteDump => TotalVoteChange != 0 ? Math.Round((decimal)ThirdPartyVoteChange / TotalVoteChange, 3) : 0;
+
         public VoteTimeSeries SetPrevious(VoteTimeSeries previous)
         {
             Previous = previous;

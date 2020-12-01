@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Voting.Entities;
 using Voting.Nyt;
 
@@ -11,9 +12,9 @@ namespace Voting
 {
     class Program
     {        
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {           
-            DataLoader.LoadData(false).Wait();
+            var result = await DataLoader.LoadDataAsync(false);
 
             /*
              // attempt to find the 'gaps' in counting - results are weird
