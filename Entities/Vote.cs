@@ -1,27 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Voting.Model;
 using Voting.Nyt;
 
 namespace Voting.Entities
 {
-    public class Vote
+    public class Vote : IVoteSeries
     {
         public int Id { get; set; }
         public string StateName { get; set; }
         public short PrecinctsPercent { get; set; }
-        public DateTime Timestamp { get; set; }
+        public DateTime VoteTimestamp { get; set; }
 
         public int TotalVotes { get; set; }
         public int PreviousTotalVotes { get; set; }
 
-        public decimal TrumpPercent { get; set; }
-        public decimal BidenPercent { get; set; }
-        public decimal ThirdPartyPercent { get; set; }
+        public decimal TrumpPercentOfTotal { get; set; }
+        public decimal BidenPercentOfTotal { get; set; }
+        public decimal ThirdPartyPercentOfTotal { get; set; }
 
-        public decimal PreviousTrumpPercent { get; set; }
-        public decimal PreviousBidenPercent { get; set; }
-        public decimal PreviousThirdPartyPercent { get; set; }
+
+        public decimal PreviousTrumpPercentOfTotal { get; set; }
+        public decimal PreviousBidenPercentOfTotal { get; set; }
+        public decimal PreviousThirdPartyPercentOfTotal { get; set; }
 
         public int TrumpVotes { get; set; }
         public int BidenVotes { get; set; }
@@ -31,9 +33,9 @@ namespace Voting.Entities
         public int PreviousBidenVotes { get; set; }
         public int PreviousThirdPartyVotes { get; set; }
 
-        public decimal TrumpPercentOfVoteDump { get; set; }
-        public decimal BidenPercentOfVoteDump { get; set; }
-        public decimal ThirdPartyPercentOfVoteDump { get; set; }
+        public decimal TrumpPercentOfVoteBatch { get; set; }
+        public decimal BidenPercentOfVoteBatch { get; set; }
+        public decimal ThirdPartyPercentOfVoteBatch { get; set; }
 
         // calced
         public int TotalVoteChange { get; set; }
@@ -44,33 +46,36 @@ namespace Voting.Entities
         public int BidenVoteChange { get; set; }
         public int ThirdPartyVoteChange { get; set; }
 
-        public static Vote Create(string state, VoteTimeSeries ts)
+        public short MinVoteSensitivity { get; set; }
+
+        public static Vote Create(VoteTimeSeries ts)
         {
             return new Vote
             {
-                StateName = state,
-                PrecinctsPercent = (short)ts.EstimatedPercentReported,
-                Timestamp = ts.Timestamp,
+                StateName = ts.StateName,
+                PrecinctsPercent = (short)ts.PrecinctsPercent,
+                VoteTimestamp = ts.VoteTimestamp,
                 TotalVotes = ts.TotalVotes,
-                PreviousTotalVotes = (ts.Previous?.TotalVotes ?? 0),
-                TrumpPercent = ts.VoteShares.TrumpPercent,
-                BidenPercent = ts.VoteShares.BidenPercent,
-                ThirdPartyPercent = ts.VoteShares.ThirdPartyPercent,
-                PreviousTrumpPercent = ts.Previous?.VoteShares?.TrumpPercent ?? 0,
-                PreviousBidenPercent = ts.Previous?.VoteShares?.BidenPercent ?? 0,
-                PreviousThirdPartyPercent = ts.Previous?.VoteShares?.ThirdPartyPercent ?? 0,
+                PreviousTotalVotes = ts.PreviousTotalVotes,
+                TrumpPercentOfTotal = ts.TrumpPercentOfTotal,
+                BidenPercentOfTotal = ts.BidenPercentOfTotal,
+                ThirdPartyPercentOfTotal = ts.ThirdPartyPercentOfTotal,
+                PreviousTrumpPercentOfTotal = ts.PreviousTrumpPercentOfTotal,
+                PreviousBidenPercentOfTotal = ts.PreviousBidenPercentOfTotal,
+                PreviousThirdPartyPercentOfTotal = ts.PreviousThirdPartyPercentOfTotal,
 
                 TrumpVotes = ts.TrumpVotes,
                 BidenVotes = ts.BidenVotes,
                 ThirdPartyVotes = ts.ThirdPartyVotes,
 
-                PreviousTrumpVotes = ts.Previous?.TrumpVotes ?? 0,
-                PreviousBidenVotes = ts.Previous?.BidenVotes ?? 0,
-                PreviousThirdPartyVotes = ts.Previous?.ThirdPartyVotes ?? 0,
+                PreviousTrumpVotes = ts.PreviousTrumpVotes,
+                PreviousBidenVotes = ts.PreviousBidenVotes,
+                PreviousThirdPartyVotes = ts.PreviousThirdPartyVotes,
 
-                TrumpPercentOfVoteDump = ts.TrumpPercentOfVoteDump,
-                BidenPercentOfVoteDump = ts.BidenPercentOfVoteDump,
-                ThirdPartyPercentOfVoteDump = ts.ThirdPartyPercentOfVoteDump
+                TrumpPercentOfVoteBatch = ts.TrumpPercentOfVoteBatch,
+                BidenPercentOfVoteBatch = ts.BidenPercentOfVoteBatch,
+                ThirdPartyPercentOfVoteBatch = ts.ThirdPartyPercentOfVoteBatch,
+                MinVoteSensitivity = ts.MinVoteSensitivity
             };
         }
     }

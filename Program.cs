@@ -11,36 +11,34 @@ using Voting.Nyt;
 namespace Voting
 {
     class Program
-    {        
+    {
         static async Task Main(string[] args)
-        {           
-            var result = await DataLoader.LoadDataAsync(false);
-
+        {
             var state = "pennsylvania";
             if (args.Length > 0)
                 state = args[0];
+            var result = await DataLoader.LoadDataAsync(new Model.DataLoaderOptions() { From = Model.LoadFrom.Db, StateFilter = state });
 
-            if (result.ContainsKey(state))
+
+
+
+            Console.WriteLine($"Data for {state.ToUpper()}");
+            foreach (var item in result)
             {
-                Console.WriteLine($"Data for {state.ToUpper()}");
-                foreach (var item in result[state])
+                var a = item.GetAnomaly();
+                switch (a)
                 {
-                    var a = item.GetAnomaly();
-                    switch (a)
-                    {
-                        case Anomaly.Move:
-                            item.RenderMove();
-                            break;
-                        case Anomaly.Dump:
-                            item.RenderDump();
-                            break;
-                        default:
-                            break;
-                    }
+                    case Anomaly.Move:
+                        item.RenderMove();
+                        break;
+                    case Anomaly.Dump:
+                        item.RenderDump();
+                        break;
+                    default:
+                        break;
                 }
             }
-            else
-                Console.WriteLine($"ERROR: {state} not found.");
+
 
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
