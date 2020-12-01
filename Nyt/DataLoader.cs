@@ -51,7 +51,7 @@ namespace Voting.Nyt
                     var typedSeries = timeseries.Select(s => (VoteTimeSeries)s.ToObject(typeof(VoteTimeSeries))).OrderBy(s => s.Timestamp).ToArray();
                     Console.WriteLine($"    There are {typedSeries.Length} items for {state}");
                     typedSeries = typedSeries.Select((ts, i) => i > 0 ? ts.SetPrevious(typedSeries[i - 1]) : ts).ToArray();
-                    result.Add(state, typedSeries);
+                    result.Add(state.ToLower(), typedSeries);
                     if (!await dbContext.Votes.AnyAsync(s => s.StateName == state))
                     {
                         foreach (var ts in typedSeries)
