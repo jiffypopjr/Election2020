@@ -20,13 +20,5 @@ namespace Voting.Nyt
             Previous = previous;
             return this;
         }
-
-        public VoteShare Diff()
-        {
-            if (Previous == null)
-                return this;
-            else
-                return new VoteShare { TrumpPercent = TrumpPercent - Previous.TrumpPercent, BidenPercent = BidenPercent - Previous.BidenPercent };
-        }
     }
 }

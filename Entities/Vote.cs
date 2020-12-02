@@ -53,7 +53,7 @@ namespace Voting.Entities
             return new Vote
             {
                 StateName = ts.StateName,
-                PrecinctsPercent = (short)ts.PrecinctsPercent,
+                PrecinctsPercent = ts.PrecinctsPercent,
                 VoteTimestamp = ts.VoteTimestamp,
                 TotalVotes = ts.TotalVotes,
                 PreviousTotalVotes = ts.PreviousTotalVotes,

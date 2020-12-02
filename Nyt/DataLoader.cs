@@ -40,8 +40,10 @@ namespace Voting.Nyt
 
                     if (!options.RecreateDb)
                     {
-                        return await dbContext.Votes.Where(v => v.StateName == options.StateFilter)
-                            .AsNoTracking().ToArrayAsync();
+                        return await dbContext.Votes
+                            .Where(v => v.StateName == options.StateFilter && v.PrecinctsPercent > 0)
+                            .AsNoTracking()
+                            .ToArrayAsync();
                     }
                 }
 
@@ -79,7 +81,7 @@ namespace Voting.Nyt
                         if (options.IsDb && dbContext.ChangeTracker.Entries().Any())
                             await dbContext.SaveChangesAsync();
 
-                        return typedSeries;
+                        return typedSeries.Where(s => s.PrecinctsPercent > 0).OrderBy(s => s.VoteTimestamp).ToArray();
                     }
                 }
             }

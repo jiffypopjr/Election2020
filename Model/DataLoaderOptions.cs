@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Voting.Nyt;
 
 namespace Voting.Model
 {
@@ -17,5 +18,6 @@ namespace Voting.Model
         public bool RecreateDb { get; set; } = false;
         public bool RedownloadFiles { get; set; } = false;
         public string StateFilter { get; set; } = "pennsylvania";
+        public Anomaly Show { get; set; } = Anomaly.Both;
     }
 }

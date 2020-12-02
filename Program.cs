@@ -14,31 +14,29 @@ namespace Voting
     {
         static async Task Main(string[] args)
         {
-            var state = "pennsylvania";
+            var state = "michigan";
             if (args.Length > 0)
                 state = args[0];
-            var result = await DataLoader.LoadDataAsync(new Model.DataLoaderOptions() { From = Model.LoadFrom.Db, StateFilter = state });
 
+            var options = new Model.DataLoaderOptions() { From = Model.LoadFrom.Db, StateFilter = state, Show = Anomaly.Dump };
+            var result = await DataLoader.LoadDataAsync(options);
 
-
-
-            Console.WriteLine($"Data for {state.ToUpper()}");
+            Console.WriteLine($"Data for {state.ToUpper()} with {result.Length} items");
             foreach (var item in result)
             {
                 var a = item.GetAnomaly();
                 switch (a)
                 {
                     case Anomaly.Move:
-                        item.RenderMove();
+                        item.RenderMove(options.Show);
                         break;
                     case Anomaly.Dump:
-                        item.RenderDump();
+                        item.RenderDump(options.Show);
                         break;
                     default:
                         break;
                 }
             }
-
 
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();

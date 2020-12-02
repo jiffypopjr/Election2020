@@ -10,7 +10,8 @@ namespace Voting.Nyt
     {
         None,
         Dump,
-        Move
+        Move,
+        Both
     }
     public class VoteTimeSeries : IVoteSeries
     {
