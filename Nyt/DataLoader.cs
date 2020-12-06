@@ -38,13 +38,13 @@ namespace Voting.Nyt
 
                     await dbContext.Database.EnsureCreatedAsync();
 
-                    if (!options.RecreateDb)
-                    {
-                        return await dbContext.Votes
-                            .Where(v => v.StateName == options.StateFilter && v.PrecinctsPercent > 0)
-                            .AsNoTracking()
-                            .ToArrayAsync();
-                    }
+                    //if (!options.RecreateDb)
+                    //{
+                    //    return await dbContext.Votes
+                    //        .Where(v => v.StateName == options.StateFilter && v.PrecinctsPercent > 0)
+                    //        .AsNoTracking()
+                    //        .ToArrayAsync();
+                    //}
                 }
 
                 Console.WriteLine("Loading data...");
@@ -53,7 +53,7 @@ namespace Voting.Nyt
                     var state = filePath.Substring(filePath.LastIndexOf('\\') + 1).Replace(".json", string.Empty);
                     state = state[0].ToString().ToUpper() + state.Substring(1);
 
-                    if (string.Compare(state, options.StateFilter, true) == 0)
+                    if (options.StateFilter == null || string.Compare(state, options.StateFilter, true) == 0)
                     {
                         Console.WriteLine($"  Loading {state}...");
                         var votes = JObject.Parse(await File.ReadAllTextAsync(filePath));
@@ -71,17 +71,34 @@ namespace Voting.Nyt
 
                         if (!await dbContext.Votes.AnyAsync(s => s.StateName == state))
                         {
-                            Console.WriteLine($"    There are {typedSeries.Length} items for {state}");
+                            Console.WriteLine($"    There are {typedSeries.Length} vote time slices for {state}");
                             foreach (var ts in typedSeries)
                             {
                                 dbContext.Votes.Add(Vote.Create(ts));
                             }
                         }
 
+                        // counties
+                        var counties = votes?["data"]?["races"]?.FirstOrDefault();
+                        if (counties != null)
+                        {
+                            var typedCounties = counties["counties"]?.Select(
+                                                c => (VoteCounty)c.ToObject(typeof(VoteCounty))).ToList();
+                            Console.WriteLine($"    There are {typedCounties.Count} counties in {state}");
+                            if (!await dbContext.Counties.AnyAsync(c => c.StateName == state))
+                                typedCounties.ForEach(c =>
+                                                    {
+                                                        dbContext.Counties.Add(County.Create(state, c));
+                                                    });
+                        }
+                        else
+                            Console.WriteLine("WARNING: {state} had no counties");
+
                         if (options.IsDb && dbContext.ChangeTracker.Entries().Any())
                             await dbContext.SaveChangesAsync();
 
-                        return typedSeries.Where(s => s.PrecinctsPercent > 0).OrderBy(s => s.VoteTimestamp).ToArray();
+                        if (options.StateFilter != null)
+                            return typedSeries.Where(s => s.PrecinctsPercent > 0).OrderBy(s => s.VoteTimestamp).ToArray();
                     }
                 }
             }

@@ -9,6 +9,7 @@ namespace Voting.Entities
     {
         public DbSet<State> States { get; set; }
         public DbSet<Vote> Votes { get; set; }
+        public DbSet<County> Counties { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -17,14 +18,16 @@ namespace Voting.Entities
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<State>(e => {
+            modelBuilder.Entity<State>(e =>
+            {
                 e.ToTable("States").HasKey(p => p.StateName).IsClustered();
                 e.Property(p => p.StateName).IsRequired().HasMaxLength(25);
                 e.Property(p => p.IsSwing).IsRequired();
                 e.Property(p => p.AsOfDate).IsRequired().HasColumnType("datetime2(3)");
             });
 
-            modelBuilder.Entity<Vote>(e => {
+            modelBuilder.Entity<Vote>(e =>
+            {
                 e.ToTable("Votes").HasKey(p => p.Id).IsClustered(false);
                 e.Property(p => p.Id).IsRequired().UseIdentityColumn(1, 1);
                 e.Property(p => p.StateName).IsRequired().IsUnicode(false).HasMaxLength(25);
@@ -41,7 +44,7 @@ namespace Voting.Entities
                 e.Property(p => p.PreviousTrumpPercentOfTotal).IsRequired().HasColumnType("decimal(6,3)");
                 e.Property(p => p.PreviousBidenPercentOfTotal).IsRequired().HasColumnType("decimal(6,3)");
                 e.Property(p => p.PreviousThirdPartyPercentOfTotal).IsRequired().HasColumnType("decimal(6,3)");
-                
+
                 e.Property(p => p.TrumpVotes).IsRequired();
                 e.Property(p => p.BidenVotes).IsRequired();
                 e.Property(p => p.ThirdPartyVotes).IsRequired();
@@ -50,9 +53,9 @@ namespace Voting.Entities
                 e.Property(p => p.PreviousBidenVotes).IsRequired();
                 e.Property(p => p.PreviousThirdPartyVotes).IsRequired();
 
-                e.Property(p => p.TrumpPercentOfVoteBatch).IsRequired().HasColumnType("decimal(6,3)");
-                e.Property(p => p.BidenPercentOfVoteBatch).IsRequired().HasColumnType("decimal(6,3)");
-                e.Property(p => p.ThirdPartyPercentOfVoteBatch).IsRequired().HasColumnType("decimal(6,3)");
+                e.Property(p => p.TrumpPercentOfVoteBatch).IsRequired().HasColumnType("decimal(9,3)");
+                e.Property(p => p.BidenPercentOfVoteBatch).IsRequired().HasColumnType("decimal(9,3)");
+                e.Property(p => p.ThirdPartyPercentOfVoteBatch).IsRequired().HasColumnType("decimal(9,3)");
 
                 e.Property(p => p.MinVoteSensitivity).IsRequired();
 
@@ -68,6 +71,33 @@ namespace Voting.Entities
                 .HasIndex(p => new { p.StateName, p.VoteTimestamp })
                 .IsClustered()
                 .HasDatabaseName("CIDX_Votes_StateNameVoteTimestamp");
+
+            modelBuilder.Entity<County>(e =>
+            {
+                e.ToTable("Counties").HasKey(p => p.Id).IsClustered(false);
+                e.Property(p => p.Id).IsRequired().UseIdentityColumn(1, 1);
+                e.Property(p => p.StateName).IsRequired().IsUnicode(false).HasMaxLength(25);
+                e.Property(p => p.CountyName).IsRequired().IsUnicode(false).HasMaxLength(75);
+                e.Property(p => p.CountyTimestamp).IsRequired().HasColumnType("datetime2(3)");
+
+                e.Property(p => p.TotalVotes).IsRequired();
+                e.Property(p => p.TrumpVotes).IsRequired();
+                e.Property(p => p.BidenVotes).IsRequired();
+                e.Property(p => p.ThirdPartyVotes).IsRequired();
+                e.Property(p => p.AbsenteeVotes).IsRequired();
+
+                e.Property(p => p.LeadingParty).IsRequired().IsUnicode(false).HasMaxLength(25);
+                e.Property(p => p.LeadingMarginPercent).IsRequired().HasColumnType("decimal(9,8)");
+                e.Property(p => p.Margin2020).IsRequired().HasColumnType("decimal(9,8)");
+                e.Property(p => p.Margin2016).IsRequired().HasColumnType("decimal(9,8)");
+                e.Property(p => p.Margin2012).IsRequired().HasColumnType("decimal(9,8)");
+                e.Property(p => p.Votes2016).IsRequired();
+                e.Property(p => p.Votes2012).IsRequired();
+            });
+            modelBuilder.Entity<County>()
+                .HasIndex(p => new { p.StateName, p.CountyName })
+                .IsClustered()
+                .HasDatabaseName("CIDX_Counties_StateNameCountyName");
         }
     }
 }

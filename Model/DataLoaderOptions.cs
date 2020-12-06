@@ -17,7 +17,7 @@ namespace Voting.Model
         public LoadFrom From { get; set; } = LoadFrom.Files;
         public bool RecreateDb { get; set; } = false;
         public bool RedownloadFiles { get; set; } = false;
-        public string StateFilter { get; set; } = "pennsylvania";
+        public string StateFilter { get; set; }
         public Anomaly Show { get; set; } = Anomaly.Both;
     }
 }
